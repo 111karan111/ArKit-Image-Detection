@@ -18,25 +18,96 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Set the view's delegate
         sceneView.delegate = self
+        sceneView.autoenablesDefaultLighting = true
+
         
-        // Show statistics such as fps and timing information
-        sceneView.showsStatistics = true
         
-        // Create a new scene
-        let scene = SCNScene(named: "art.scnassets/ship.scn")!
         
-        // Set the scene to the view
-        sceneView.scene = scene
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         // Create a session configuration
-        let configuration = ARWorldTrackingConfiguration()
+        let configuration = ARImageTrackingConfiguration()
+        
+        
+        if let referenceImages = ARReferenceImage.referenceImages(inGroupNamed: "AR Resources", bundle: Bundle.main) {
+        
+        configuration.trackingImages = referenceImages
+        configuration.maximumNumberOfTrackedImages = 2
+        print("Image succesfully added")
+    
+        }
+        
 
         // Run the view's session
         sceneView.session.run(configuration)
+    }
+    
+    
+    
+  //When image is detected
+    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
+        
+        
+        
+        let node = SCNNode()
+        
+        if let imageAnchor = anchor as? ARImageAnchor {
+            
+            
+            let plane = SCNPlane(width: imageAnchor.referenceImage.physicalSize.width, height: imageAnchor.referenceImage.physicalSize.height)
+            
+            let planeNode = SCNNode(geometry: plane)
+            
+            
+            
+            planeNode.eulerAngles.x = -.pi / 2
+            
+            node.addChildNode(planeNode)
+            
+            
+            
+            if imageAnchor.referenceImage.name == "eevee-card"
+            {
+            if let pokeScene = SCNScene (named: "art.scnassets/eevee.scn"){
+                
+                
+                if let pokeNode = pokeScene.rootNode.childNodes.first{
+                    
+                    
+                    pokeNode.eulerAngles.x = .pi/2
+                    
+                    planeNode.addChildNode(pokeNode)
+                }
+            }
+            
+              
+            
+        }
+            
+            
+            
+            if imageAnchor.referenceImage.name == "oddish-card"
+            {
+            if let pokeScene = SCNScene (named: "art.scnassets/oddish.scn"){
+                
+                
+                if let pokeNode = pokeScene.rootNode.childNodes.first{
+                    
+                    
+                    pokeNode.eulerAngles.x = .pi/2
+                    
+                    planeNode.addChildNode(pokeNode)
+                }
+            }
+            
+              
+            
+        }
+        return node
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
